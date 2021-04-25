@@ -1,0 +1,58 @@
+# Project 2 
+#==============================
+library(mgcv)
+library(dplyr)
+library(ggplot2)
+library(gamair)
+
+
+d_f <- read.csv("C:/Users/User/Downloads/ducks_and_farms.csv") #read in data
+d_f <- d_f[d_f$year==c(2002,2011),] 
+
+pred.grid <- read.csv("C:/Users/User/Downloads/PredictionGrid.csv") #read in data
+colnames(pred.grid) <- c("Area","X","Y",	"Depth", "DistCoast",
+                         "WFCDist")
+
+count <- d_f$count
+phase <- d_f$phase
+distFromFarm <- d_f$distFromFarm
+X<- d_f$X
+Y<- d_f$Y
+
+GAM <- gam(count~ phase+s(X,Y)+s(distFromFarm, by = as.factor(phase))
+           ,data= d_f ,family = "quasipoisson",method="REML")
+
+summary(GAM)
+
+#Plots for fitted GAM:
+plot.gam(GAM, shade=T)
+par(ask=F)
+par(ask=F) 
+
+pred.grid <- pred.grid %>% mutate(distFromFarm = pred.grid$WFCDist*1000) #Add in distFromFarm (in meters)
+pred.gridA <- pred.grid %>% mutate(phase = "A") #set phase to A for all entries in phase column
+pred.gridC <- pred.grid %>% mutate(phase = "C") #set phase to C for all entries in phase column
+predGAM_A <- predict(GAM, pred.gridA, type = "response") #predictions for phase A
+predGAM_C<- predict(GAM, pred.gridC, type = "response") #predictions for phase C
+
+plottingDF1 <- pred.grid %>% mutate(preds_A = predGAM_A) %>% mutate(preds_C = predGAM_C)
+
+
+#predicted abundance phase A
+p1 <- ggplot(plottingDF1) + 
+  geom_point(aes(X, Y, size = preds_A), shape = 21, fill = "steelblue", col = "black", alpha = 0.5) +
+  theme_light()+guides(size=guide_legend("Prediction A abundance"))
+p1+xlab("X (lon)")+ylab("Y(lat)")
+
+
+#predicted abundance phase c:
+p2 <- ggplot(plottingDF1) + 
+  geom_point(aes(X, Y, size = preds_C), shape = 21, fill = "steelblue",col = "black", alpha = 0.5) +
+  theme_light()+guides(size=guide_legend("Prediction C abundance"))
+p2+xlab("X (lon)")+ylab("Y(lat)")
+
+
+#Plot X and Y against distFromFarm:
+par(mfrow=c(1,2))
+plot(plottingDF1$X, plottingDF1$distFromFarm, xlab = "X (lon)", ylab = "Distance from farm (meters)")
+plot(plottingDF1$Y, plottingDF1$distFromFarm, xlab = "Y (lat)", ylab = "Distance from farm (meters)")
