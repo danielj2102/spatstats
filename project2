@@ -10,8 +10,7 @@ d_f <- read.csv("C:/Users/User/Downloads/ducks_and_farms.csv") #read in data
 d_f <- d_f[d_f$year==c(2002,2011),] 
 
 pred.grid <- read.csv("C:/Users/User/Downloads/PredictionGrid.csv") #read in data
-colnames(pred.grid) <- c("Area","X","Y",	"Depth", "DistCoast",
-                         "WFCDist")
+colnames(pred.grid) <- c("Area","X","Y", "Depth", "DistCoast", "WFCDist")
 
 count <- d_f$count
 phase <- d_f$phase
