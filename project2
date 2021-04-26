@@ -1,4 +1,4 @@
-# Project 2 
+# assignment 2 MT4537
 #==============================
 library(mgcv)
 library(dplyr)
@@ -10,7 +10,7 @@ d_f <- read.csv("C:/Users/User/Downloads/ducks_and_farms.csv") #read in data
 d_f <- d_f[d_f$year==c(2002,2011),] 
 
 pred.grid <- read.csv("C:/Users/User/Downloads/PredictionGrid.csv") #read in data
-colnames(pred.grid) <- c("Area","X","Y", "Depth", "DistCoast", "WFCDist")
+colnames(pred.grid) <- c("Area","X","Y", "Depth", "DistCoast", "WFCDist") #Change column names in second data set
 
 count <- d_f$count
 phase <- d_f$phase
@@ -29,12 +29,12 @@ par(ask=F)
 par(ask=F) 
 
 pred.grid <- pred.grid %>% mutate(distFromFarm = pred.grid$WFCDist*1000) #Add in distFromFarm (in meters)
-pred.gridA <- pred.grid %>% mutate(phase = "A") #set phase to A for all entries in phase column
-pred.gridC <- pred.grid %>% mutate(phase = "C") #set phase to C for all entries in phase column
-predGAM_A <- predict(GAM, pred.gridA, type = "response") #predictions for phase A
-predGAM_C<- predict(GAM, pred.gridC, type = "response") #predictions for phase C
+pred.grid.phase.a <- pred.grid %>% mutate(phase = "A") #set phase to A for all entries in phase column
+pred.grid.phase.c <- pred.grid %>% mutate(phase = "C") #set phase to C for all entries in phase column
+predgam.a <- predict(GAM, pred.grid.phase.a, type = "response") #predictions for phase A
+predgam.c<- predict(GAM, pred.grid.phase.c, type = "response") #predictions for phase C
 
-plottingDF1 <- pred.grid %>% mutate(preds_A = predGAM_A) %>% mutate(preds_C = predGAM_C)
+plottingDF1 <- pred.grid %>% mutate(preds_A = predgam.a) %>% mutate(preds_C = predgam.c) #for plotting predictions
 
 
 #predicted abundance phase A
